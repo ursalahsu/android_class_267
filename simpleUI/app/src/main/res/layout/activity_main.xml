@@ -46,18 +46,16 @@
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="male"
-            android:id="@+id/maleRadioButton"
-            android:checked="true"
-            android:drawableRight="@drawable/man" />
+            android:text="black tea"
+            android:id="@+id/blackteaRadioButton"
+            android:checked="true" />
 
         <RadioButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="female"
-            android:id="@+id/femaleRadioButton"
-            android:checked="false"
-            android:drawableRight="@drawable/female" />
+            android:text="red tea"
+            android:id="@+id/redteaRadioButton"
+            android:checked="false" />
     </RadioGroup>
 
     <CheckBox
@@ -68,5 +66,13 @@
         android:layout_alignBottom="@+id/button"
         android:layout_toRightOf="@+id/button"
         android:layout_toEndOf="@+id/button"
-        android:checked="false" />
+        android:checked="false"
+        android:visibility="gone" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_below="@+id/button"
+        android:layout_alignParentLeft="true" />
 </RelativeLayout>
