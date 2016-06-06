@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     RadioGroup radioGroup;
     CheckBox checkBox;
     ListView listView;
+    Spinner storeSpinner;
 
     ArrayList<Order> orders = new ArrayList<>();
 
@@ -84,9 +86,17 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
         listView = (ListView) findViewById(R.id.listView);
-
         setupListView();
 
+        storeSpinner=(Spinner) findViewById(R.id.spinner);
+        setupSpinner();
+    }
+
+    void setupSpinner(){
+        //讀取Resouce內的String Array XML檔
+        String[] data = getResources().getStringArray(R.array.storeInfo);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
+        storeSpinner.setAdapter(adapter);
     }
 
     void setupListView() {

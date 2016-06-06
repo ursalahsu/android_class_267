@@ -38,18 +38,18 @@ public class OrderAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Holder holder;
+        Holder holder; //暫存空間
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.listview_order_item, null);
             TextView drinknameTextView = (TextView) convertView.findViewById(R.id.drinknameTextView);
             TextView noteTextView = (TextView) convertView.findViewById(R.id.noteTextView);
-            holder= new Holder();
-            holder.drinkname=drinknameTextView;
-            holder.note=noteTextView;
+            holder = new Holder();
+            holder.drinkname = drinknameTextView;
+            holder.note = noteTextView;
 
             convertView.setTag(holder);
-        }else{
-            holder= (Holder)convertView.getTag();
+        } else {
+            holder = (Holder) convertView.getTag();
         }
 
         Order order = orders.get(position);
@@ -60,7 +60,7 @@ public class OrderAdapter extends BaseAdapter {
         return convertView;
     }
 
-    class Holder{
+    class Holder {
         TextView drinkname;
         TextView note;
     }
