@@ -40,7 +40,7 @@ public class OrderAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Holder holder; //暫存空間
+        Holder holder;
         if (convertView == null) {
             /* Inflater英文意思是膨胀，在Android中应该是扩展的意思吧。 LayoutInflater的作用类似于
             * findViewById(),不同点是LayoutInflater是用来找layout文件夹下的xml布局文件，并且实例化！ 而
@@ -67,7 +67,7 @@ public class OrderAdapter extends BaseAdapter {
 
         return convertView;
     }
-
+    //暫存空間
     class Holder {
         TextView drinkname;
         TextView note;
