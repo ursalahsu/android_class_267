@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Order> orders = new ArrayList<>();
     String drinkName = "black tea";
 
+    static int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +66,12 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         setupListView();
 
-        storeSpinner=(Spinner) findViewById(R.id.spinner);
+        storeSpinner= (Spinner) findViewById(R.id.spinner);
         setupSpinner();
 
         Log.d("Debug","Main Activity OnCreate");
+
+
     }
 
     void setupSpinner(){
@@ -102,8 +105,19 @@ public class MainActivity extends AppCompatActivity {
     public void goToMenu(View view){
         //使用意圖呼叫class
         Intent intent = new Intent();
-        intent.setClass(this,DrinkMenuActivity.class);
-        startActivity(intent);
+        intent.setClass(this, DrinkMenuActivity.class);
+        //REQUEST_CODE_DRINK_MENU_ACTIVITY 意圖回傳回來的requestCode
+        startActivityForResult(intent, REQUEST_CODE_DRINK_MENU_ACTIVITY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==REQUEST_CODE_DRINK_MENU_ACTIVITY){
+            if(resultCode==RESULT_OK){
+                textView.setText(data.getStringExtra("results"));
+            }
+        }
     }
 
     @Override

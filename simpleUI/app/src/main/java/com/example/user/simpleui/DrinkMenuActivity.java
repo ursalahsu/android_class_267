@@ -1,5 +1,6 @@
 package com.example.user.simpleui;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +8,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -69,6 +73,22 @@ public class DrinkMenuActivity extends AppCompatActivity {
             total +=drink.mPrice;
         }
         priceTextView.setText(String.valueOf(total));
+    }
+
+    public void done(View view){
+        Intent intent=new Intent(); //只能傳遞基本型態
+        //經由JSON定義回傳字串
+        JSONArray array = new JSONArray();
+        for(Drink drink : drinkOrders){
+            JSONObject object = drink.getDate();
+            array.put(object);
+        }
+        //第一個參數為鍵值 第二個為所要存放的資料內容
+        intent.putExtra("results",array.toString());
+        //回船執行成功並回傳互相溝通的意圖
+        setResult(RESULT_OK,intent);
+        //結束Activity
+        finish();
     }
 
     @Override

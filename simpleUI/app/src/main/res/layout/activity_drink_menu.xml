@@ -44,6 +44,16 @@
         android:layout_height="wrap_content"
         android:text="OK"
         android:id="@+id/button3"
+        android:onClick="done"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/button4"
+        android:layout_toStartOf="@+id/button4" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CANCEL"
+        android:id="@+id/button4"
         android:layout_alignBottom="@+id/priceTextView"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
