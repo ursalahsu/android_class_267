@@ -1,5 +1,6 @@
 package com.example.user.simpleui;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
         storeSpinner=(Spinner) findViewById(R.id.spinner);
         setupSpinner();
+
+        Log.d("Debug","Main Activity OnCreate");
     }
 
     void setupSpinner(){
@@ -96,4 +99,46 @@ public class MainActivity extends AppCompatActivity {
         setupListView();
     }
 
+    public void goToMenu(View view){
+        //使用意圖呼叫class
+        Intent intent = new Intent();
+        intent.setClass(this,DrinkMenuActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("Debug","Main Activity OnStrat");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("Debug","Main Activity OnResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("Debug", "Main Activity OnPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("Debug", "Main Activity OnStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("Debug", "Main Activity OnDestroy");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("Debug", "Main Activity OnRestart");
+    }
 }
