@@ -16,6 +16,7 @@ import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,6 +117,9 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==REQUEST_CODE_DRINK_MENU_ACTIVITY){
             if(resultCode==RESULT_OK){
                 textView.setText(data.getStringExtra("results"));
+            }
+            if(resultCode==RESULT_CANCELED){
+                Toast.makeText(this,"取消菜單",Toast.LENGTH_LONG).show();
             }
         }
     }

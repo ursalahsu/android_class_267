@@ -74,7 +74,7 @@ public class DrinkMenuActivity extends AppCompatActivity {
         }
         priceTextView.setText(String.valueOf(total));
     }
-
+    //OK
     public void done(View view){
         Intent intent=new Intent(); //只能傳遞基本型態
         //經由JSON定義回傳字串
@@ -85,8 +85,15 @@ public class DrinkMenuActivity extends AppCompatActivity {
         }
         //第一個參數為鍵值 第二個為所要存放的資料內容
         intent.putExtra("results",array.toString());
-        //回船執行成功並回傳互相溝通的意圖
+        //回傳執行成功並回傳互相溝通的意圖
         setResult(RESULT_OK,intent);
+        //結束Activity
+        finish();
+    }
+    //CANCEL
+    public void cancel(View view){
+        //回傳取消
+        setResult(RESULT_CANCELED);
         //結束Activity
         finish();
     }
