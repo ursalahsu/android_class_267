@@ -1,13 +1,17 @@
 package com.example.user.simpleui;
 
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.NumberPicker;
 
 
 /**
@@ -49,22 +53,67 @@ public class DrinkOrderDialog extends DialogFragment {
         return fragment;
     }
 
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        if (getArguments() != null) {
+//            String data = getArguments().getString(ARG_PARAM1);
+//            drinkOrder=DrinkOrder.newInstanceWithJsonObject(data);
+//        }
+//    }
+//
+//    @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                             Bundle savedInstanceState) {
+//        // Inflate the layout for this fragment
+//        return inflater.inflate(R.layout.fragment_drink_order_dialog, container, false);
+//    }
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            String data = getArguments().getString(ARG_PARAM1);
-            drinkOrder=DrinkOrder.newInstanceWithJsonObject(data);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if(getArguments() != null){
+            String data =getArguments().getString(ARG_PARAM1);
+            drinkOrder =DrinkOrder.newInstanceWithJsonObject(data);
         }
-    }
+        LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+        View root = layoutInflater.inflate(R.layout.fragment_drink_order_dialog,null);
+        //Android原生提供的畫面佈置
+        AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_drink_order_dialog, container, false);
-    }
+        builder.setView(root);
+        //設定標題
+        builder.setTitle(drinkOrder.drinkName);
+        //設定畫面上按鈕
+        builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
 
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        //最左邊按鈕
+        builder.setNeutralButton("button", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        NumberPicker numberPicker1 = (NumberPicker)root.findViewById(R.id.numberPicker);
+        numberPicker1.setMaxValue(100); //設定最大
+        numberPicker1.setMinValue(0);   //設定最小
+        numberPicker1.setValue(drinkOrder.mNumber); //取之前訂單的數量
+        NumberPicker numberPicker2 = (NumberPicker)root.findViewById(R.id.numberPicker2);
+        numberPicker2.setMaxValue(100);
+        numberPicker2.setMinValue(0);
+        numberPicker2.setValue(drinkOrder.lNumber);
+
+        return builder.create();
+    }
 
     //Fragment要跟Activity溝通 Activity必須實作OnFragmentInteractionListener
     @Override
