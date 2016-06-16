@@ -12,7 +12,7 @@ public class Drink {
     int lPrice;
     int imageId;
 
-    public JSONObject getDate(){
+    public JSONObject getData(){
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("name", name);

@@ -1,5 +1,7 @@
 package com.example.user.simpleui;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,7 +16,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class DrinkMenuActivity extends AppCompatActivity {
+public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDialog.OnFragmentInteractionListener {
 
     ArrayList<Drink> drinks = new ArrayList<>();
     ArrayList<Drink> drinkOrders = new ArrayList<>();
@@ -43,12 +45,28 @@ public class DrinkMenuActivity extends AppCompatActivity {
         drinkListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DrinkAdapter drinkAdapter = (DrinkAdapter)parent.getAdapter();
-                Drink drink = (Drink)drinkAdapter.getItem(position);
-                drinkOrders.add(drink);
-                updateTotalPrice();
+                Drink drink = (Drink)parent.getAdapter().getItem(position);
+                ShowDetailDrinkMenu(drink);
             }
         });
+    }
+    private void ShowDetailDrinkMenu(Drink drink){
+        //getSupportFragmentManager() 使用在舊版的android 要改Fragment java檔中的import
+        FragmentManager fragmentManager = getFragmentManager();
+
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        DrinkOrder drinkOrder = new DrinkOrder();
+        drinkOrder.mPrice=drink.mPrice;
+        drinkOrder.lPrice=drink.lPrice;
+        drinkOrder.drinkName=drink.name;
+
+        DrinkOrderDialog orderDialog = DrinkOrderDialog.newInstance(drinkOrder);
+        //DialogFragment的實作方式
+        orderDialog.show(ft,"DrinkOrderDialog");
+        //Fragment實作方式
+//        ft.replace(R.id.root,orderDialog);
+//        ft.addToBackStack(null);
+//        ft.commit();
     }
 
     private void setData() {
@@ -80,7 +98,7 @@ public class DrinkMenuActivity extends AppCompatActivity {
         //經由JSON定義回傳字串
         JSONArray array = new JSONArray();
         for(Drink drink : drinkOrders){
-            JSONObject object = drink.getDate();
+            JSONObject object = drink.getData();
             array.put(object);
         }
         //第一個參數為鍵值 第二個為所要存放的資料內容
