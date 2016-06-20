@@ -1,8 +1,12 @@
 package com.example.user.simpleui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -32,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     Spinner storeSpinner;
 
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;    //需要使用editor寫入至SharedPreferences
+
     ArrayList<Order> orders = new ArrayList<>();
     String drinkName = "black tea";
     String menuResults ="";
@@ -44,20 +51,47 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d("Debug", "Hello LOG");
 
+        sharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         textView = (TextView) findViewById(R.id.textview);
         textView.setText("Hello World");
 
         editText = (EditText) findViewById(R.id.editText);
+        editText.setText(sharedPreferences.getString("editText", ""));
         //監聽輸入
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
+                String text = editText.getText().toString();
+                editor.putString("editText", text);
+                editor.apply(); //寫入至SharedPreferences
+
                 //偵測enter按鈕 動作是按下按鈕
                 if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
                     click(v);
                     return true; //把enter攔截 避免顯示在editView中
                 }
                 return false;
+            }
+        });
+        textView.setText(sharedPreferences.getString("textView",""));
+        textView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String text=textView.getText().toString();
+                editor.putString("textView",text);
+                editor.apply(); //寫入至SharedPreferences
             }
         });
 
@@ -71,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
         storeSpinner= (Spinner) findViewById(R.id.spinner);
         setupSpinner();
 
-        Log.d("Debug","Main Activity OnCreate");
+        Log.d("Debug", "Main Activity OnCreate");
+
 
 
     }

@@ -54,7 +54,7 @@ public class OrderAdapter extends BaseAdapter {
             holder = new Holder();
             holder.drinkNumber = drinkNumberTextView;
             holder.note = noteTextView;
-            holder.storeinfo =  (TextView)convertView.findViewById(R.id.drinkNumberTextView);
+            holder.store =  (TextView)convertView.findViewById(R.id.storeInfoTextView);
 
             convertView.setTag(holder);
         } else {
@@ -68,7 +68,7 @@ public class OrderAdapter extends BaseAdapter {
             JSONArray jsonArray=new JSONArray(order.menuResults);
             for (int i=0;i<jsonArray.length();i++){
                 JSONObject jsonObject=jsonArray.getJSONObject(i);
-                totalNumber += jsonObject.getInt("lNumber")+jsonObject.getInt("mNunber");
+                totalNumber += jsonObject.getInt("lNumber")+jsonObject.getInt("mNumber");
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -76,7 +76,7 @@ public class OrderAdapter extends BaseAdapter {
 
         holder.drinkNumber.setText(String.valueOf(totalNumber));
         holder.note.setText(order.note);
-        holder.storeinfo.setText(order.storeInfo);
+        holder.store.setText(order.storeInfo);
 
         return convertView;
     }
@@ -84,6 +84,6 @@ public class OrderAdapter extends BaseAdapter {
     class Holder {
         TextView drinkNumber;
         TextView note;
-        TextView storeinfo;
+        TextView store;
     }
 }

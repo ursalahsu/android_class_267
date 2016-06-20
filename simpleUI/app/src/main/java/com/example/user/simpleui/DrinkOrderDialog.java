@@ -88,11 +88,11 @@ public class DrinkOrderDialog extends DialogFragment {
         //Android原生提供的畫面佈置
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setView(root);
+        builder.setView(root)
         //設定標題
-        builder.setTitle(drinkOrder.drinkName);
+        .setTitle(drinkOrder.drinkName)
         //設定畫面上按鈕
-        builder.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+        .setPositiveButton("確定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 drinkOrder.lNumber = lNumberPicker.getValue();
@@ -100,8 +100,9 @@ public class DrinkOrderDialog extends DialogFragment {
                 drinkOrder.ice = getSelectedItemFromRadioGroup(iceRadioGroup);
                 drinkOrder.sugar = getSelectedItemFromRadioGroup(sugarRadioGroup);
                 drinkOrder.note = noteEditText.getText().toString();
-                if(mListener!=null)
+                if(mListener!=null){
                     mListener.OnDrinkOrderFinished(drinkOrder);
+                }
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -117,14 +118,16 @@ public class DrinkOrderDialog extends DialogFragment {
 
             }
         });
-        NumberPicker mNumberPicker = (NumberPicker) root.findViewById(R.id.mNumberPicker);
+        mNumberPicker = (NumberPicker) root.findViewById(R.id.mNumberPicker);
         mNumberPicker.setMaxValue(100); //設定最大
         mNumberPicker.setMinValue(0);   //設定最小
         mNumberPicker.setValue(drinkOrder.mNumber); //取之前訂單的數量
-        NumberPicker lNumberPicker = (NumberPicker) root.findViewById(R.id.lNumberPicker);
+
+        lNumberPicker = (NumberPicker) root.findViewById(R.id.lNumberPicker);
         lNumberPicker.setMaxValue(100);
         lNumberPicker.setMinValue(0);
         lNumberPicker.setValue(drinkOrder.lNumber);
+
         iceRadioGroup = (RadioGroup) root.findViewById(R.id.iceRadioGroup);
         sugarRadioGroup = (RadioGroup) root.findViewById(R.id.sugerRadioGroip);
         noteEditText = (EditText) root.findViewById(R.id.noteEditText);
