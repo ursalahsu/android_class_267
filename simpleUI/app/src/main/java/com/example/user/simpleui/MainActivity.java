@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -51,8 +52,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d("Debug", "Hello LOG");
 
-        sharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        //使用Android提供的工具做資料儲存
+        sharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE); //使用覆蓋
         editor = sharedPreferences.edit();
+        setupOrdersData();
 
         textView = (TextView) findViewById(R.id.textview);
         textView.setText("Hello World");
@@ -75,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-        textView.setText(sharedPreferences.getString("textView",""));
+
+        textView.setText(sharedPreferences.getString("textView", ""));
         textView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -89,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String text=textView.getText().toString();
-                editor.putString("textView",text);
+                String text = textView.getText().toString();
+                editor.putString("textView", text);
                 editor.apply(); //寫入至SharedPreferences
             }
         });
@@ -103,7 +107,22 @@ public class MainActivity extends AppCompatActivity {
         setupListView();
 
         storeSpinner= (Spinner) findViewById(R.id.spinner);
+        storeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int select = storeSpinner.getSelectedItemPosition();
+                editor.putInt("Spinner",select);
+                editor.apply(); //寫入至SharedPreferences
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         setupSpinner();
+
+
 
         Log.d("Debug", "Main Activity OnCreate");
 
@@ -116,11 +135,23 @@ public class MainActivity extends AppCompatActivity {
         String[] data = getResources().getStringArray(R.array.storeInfo);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
         storeSpinner.setAdapter(adapter);
+        storeSpinner.setSelection(sharedPreferences.getInt("Spinner",0));
     }
 
     void setupListView() {
         OrderAdapter adapter = new OrderAdapter(this,orders);
         listView.setAdapter(adapter);
+    }
+
+    private void setupOrdersData(){
+        String content = Utils.readFile(this,"history");
+        String[] datas=content.split("\n");
+        for(int i=0;i<datas.length;i++){
+            Order order=Order.newInstanceWithData(datas[i]);
+            if(order !=null){
+                orders.add(order);
+            }
+        }
     }
 
     public void click(View view) {
@@ -132,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
         order.storeInfo= (String)storeSpinner.getSelectedItem();
 
         orders.add(order);
+
+        Utils.writeFile(this, "history", order.getJsonObject().toString());
 
         textView.setText(note);
         menuResults="";
