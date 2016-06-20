@@ -16,10 +16,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDialog.OnFragmentInteractionListener {
+public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDialog.OnDrinkOrderListener {
 
     ArrayList<Drink> drinks = new ArrayList<>();
-    ArrayList<Drink> drinkOrders = new ArrayList<>();
+    ArrayList<DrinkOrder> drinkOrders = new ArrayList<>();
     ListView drinkListView;
     TextView priceTextView;
 
@@ -55,10 +55,22 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
         FragmentManager fragmentManager = getFragmentManager();
 
         FragmentTransaction ft = fragmentManager.beginTransaction();
+
         DrinkOrder drinkOrder = new DrinkOrder();
-        drinkOrder.mPrice=drink.mPrice;
-        drinkOrder.lPrice=drink.lPrice;
-        drinkOrder.drinkName=drink.name;
+        Boolean flag=false; //訂單是否存在
+        for(DrinkOrder order : drinkOrders){
+            if(order.drinkName.equals(drink.name)){
+                drinkOrder=order;
+                flag=true;
+                break;
+            }
+        }
+        if(!flag){
+            drinkOrder.mPrice=drink.mPrice;
+            drinkOrder.lPrice=drink.lPrice;
+            drinkOrder.drinkName=drink.name;
+        }
+
 
         DrinkOrderDialog orderDialog = DrinkOrderDialog.newInstance(drinkOrder);
         //DialogFragment的實作方式
@@ -87,8 +99,8 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
 
     public void updateTotalPrice() {
         int total = 0;
-        for(Drink drink :drinkOrders){
-            total +=drink.mPrice;
+        for(DrinkOrder order :drinkOrders){
+            total +=order.mPrice*order.mNumber+order.lPrice*order.lNumber;
         }
         priceTextView.setText(String.valueOf(total));
     }
@@ -97,8 +109,8 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
         Intent intent=new Intent(); //只能傳遞基本型態
         //經由JSON定義回傳字串
         JSONArray array = new JSONArray();
-        for(Drink drink : drinkOrders){
-            JSONObject object = drink.getData();
+        for(DrinkOrder order : drinkOrders){
+            JSONObject object = order.getJsonObject();
             array.put(object);
         }
         //第一個參數為鍵值 第二個為所要存放的資料內容
@@ -150,5 +162,18 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
     protected void onRestart() {
         super.onRestart();
         Log.d("Debug", "Drink Menu Activity OnRestart");
+    }
+
+    @Override
+    public void OnDrinkOrderFinished(DrinkOrder drinkOrder) {
+        for(int i=0 ;i<drinkOrders.size();i++){
+            if(drinkOrders.get(i).drinkName.equals(drinkOrder.drinkName)){
+                drinkOrders.set(i,drinkOrder);
+                updateTotalPrice();
+                return;
+            }
+        }
+        drinkOrders.add(drinkOrder);
+        updateTotalPrice();
     }
 }

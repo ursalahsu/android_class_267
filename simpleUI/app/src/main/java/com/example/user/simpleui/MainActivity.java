@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<Order> orders = new ArrayList<>();
     String drinkName = "black tea";
+    String menuResults ="";
 
     static int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
 
@@ -92,12 +93,13 @@ public class MainActivity extends AppCompatActivity {
 
         Order order = new Order();
         order.note = note;
-        order.drinkname = drinkName;
+        order.menuResults = menuResults;
         order.storeInfo= (String)storeSpinner.getSelectedItem();
 
         orders.add(order);
 
-        textView.setText(drinkName);
+        textView.setText(note);
+        menuResults="";
         editText.setText("");
 
         setupListView();
@@ -116,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==REQUEST_CODE_DRINK_MENU_ACTIVITY){
             if(resultCode==RESULT_OK){
-                textView.setText(data.getStringExtra("results"));
+                menuResults = data.getStringExtra("results");
+                Toast.makeText(this,"完成菜單",Toast.LENGTH_LONG).show();
             }
             if(resultCode==RESULT_CANCELED){
                 Toast.makeText(this,"取消菜單",Toast.LENGTH_LONG).show();

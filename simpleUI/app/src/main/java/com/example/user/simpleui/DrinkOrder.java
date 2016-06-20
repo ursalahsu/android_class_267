@@ -12,7 +12,7 @@ public class DrinkOrder {
     String sugar = "正常";
     String note="";
     int lNumber = 0;
-    int mNumber = 0;
+    int mNumber = 1;
     int lPrice;
     int mPrice;
     //轉成JSON
@@ -23,10 +23,10 @@ public class DrinkOrder {
             jsonObject.put("ice",ice);
             jsonObject.put("sugar",sugar);
             jsonObject.put("note",note);
-            jsonObject.put("lNumber",String.valueOf(lNumber));
-            jsonObject.put("mNumber",String.valueOf(mNumber));
-            jsonObject.put("lPrice",String.valueOf(lPrice));
-            jsonObject.put("mPrice",String.valueOf(mPrice));
+            jsonObject.put("lNumber",lNumber);
+            jsonObject.put("mNumber",mNumber);
+            jsonObject.put("lPrice",lPrice);
+            jsonObject.put("mPrice",mPrice);
         }catch (JSONException e){
             e.printStackTrace();
         }

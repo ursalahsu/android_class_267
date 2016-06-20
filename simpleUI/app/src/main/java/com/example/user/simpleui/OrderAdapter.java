@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -46,13 +48,13 @@ public class OrderAdapter extends BaseAdapter {
             * findViewById(),不同点是LayoutInflater是用来找layout文件夹下的xml布局文件，并且实例化！ 而
             * findViewById()是找具体某一个xml下的具体 widget控件(如:Button,TextView等)。*/
             convertView = inflater.inflate(R.layout.listview_order_item, null);
-            TextView drinknameTextView = (TextView) convertView.findViewById(R.id.drinknameTextView);
+            TextView drinkNumberTextView = (TextView) convertView.findViewById(R.id.drinkNumberTextView);
             TextView noteTextView = (TextView) convertView.findViewById(R.id.noteTextView);
 
             holder = new Holder();
-            holder.drinkname = drinknameTextView;
+            holder.drinkNumber = drinkNumberTextView;
             holder.note = noteTextView;
-            holder.storeinfo =  (TextView)convertView.findViewById(R.id.storeTextView);
+            holder.storeinfo =  (TextView)convertView.findViewById(R.id.drinkNumberTextView);
 
             convertView.setTag(holder);
         } else {
@@ -61,7 +63,18 @@ public class OrderAdapter extends BaseAdapter {
 
         Order order = orders.get(position);
 
-        holder.drinkname.setText(order.drinkname);
+        int totalNumber=0;
+        try {
+            JSONArray jsonArray=new JSONArray(order.menuResults);
+            for (int i=0;i<jsonArray.length();i++){
+                JSONObject jsonObject=jsonArray.getJSONObject(i);
+                totalNumber += jsonObject.getInt("lNumber")+jsonObject.getInt("mNunber");
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        holder.drinkNumber.setText(String.valueOf(totalNumber));
         holder.note.setText(order.note);
         holder.storeinfo.setText(order.storeInfo);
 
@@ -69,7 +82,7 @@ public class OrderAdapter extends BaseAdapter {
     }
     //暫存空間
     class Holder {
-        TextView drinkname;
+        TextView drinkNumber;
         TextView note;
         TextView storeinfo;
     }
