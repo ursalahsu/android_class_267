@@ -3,6 +3,8 @@ package com.example.user.simpleui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -179,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
         String[] data = getResources().getStringArray(R.array.storeInfo);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
         storeSpinner.setAdapter(adapter);
-        storeSpinner.setSelection(sharedPreferences.getInt("Spinner",0));
+        storeSpinner.setSelection(sharedPreferences.getInt("Spinner", 0));
     }
 
     void setupListView() {
@@ -188,13 +190,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupOrdersData(){
-        Order.getQuery().findInBackground(new FindCallback<Order>() {
+        //檢查網路狀態
+        ConnectivityManager cm =(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info =cm.getActiveNetworkInfo();
+
+        FindCallback<Order> callback = new FindCallback<Order>() {
             @Override
             public void done(List<Order> objects, ParseException e) {
                 orders=objects;
                 setupListView();
             }
-        });
+        };
+        //有連線成功 從雲端取資料; 無則使用LocalDatabase
+        if(info!=null && info.isConnected()){
+            Order.getOrdersFromRemote(callback);
+        }else{
+            Order.getQuery().fromLocalDatastore().findInBackground(callback);
+        }
+
 //        String content = Utils.readFile(this,"history");
 //        String[] datas=content.split("\n");
 //        for(int i=0;i<datas.length;i++){
@@ -212,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
         order.setNote(note);
         order.setMenuResults(menuResults);
         order.setStoreInfo((String) storeSpinner.getSelectedItem());
+        //存在Local端
+        order.pinInBackground();
         //上傳order物件
         order.saveEventually();
 

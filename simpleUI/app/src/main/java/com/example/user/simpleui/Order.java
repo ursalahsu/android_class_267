@@ -1,11 +1,15 @@
 package com.example.user.simpleui;
 
+import com.parse.FindCallback;
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 /**
  * Created by user on 2016/6/6.
@@ -37,6 +41,18 @@ public class Order extends ParseObject {
 
     //載入全部order的資料
     public static ParseQuery<Order> getQuery(){return ParseQuery.getQuery(Order.class);}
+
+    public  static void getOrdersFromRemote(final FindCallback callback){
+        getQuery().findInBackground(new FindCallback<Order>() {
+            @Override
+            public void done(List<Order> objects, ParseException e) {
+                //資料存在Local端 使用pin 存在網路上叫save
+                if(e==null)
+                    ParseObject.pinAllInBackground(objects);
+                callback.done(objects,e);
+            }
+        });
+    }
 
     public JSONObject getJsonObject(){
         JSONObject jsonObject = new JSONObject();

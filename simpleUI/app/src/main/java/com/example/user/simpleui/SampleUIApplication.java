@@ -18,6 +18,7 @@ public class SampleUIApplication extends Application {
                 .applicationId("jzKooj3ryei2knZRFszEHucDRSYVMpsNwHDv4Du7")
                 .server("https://parseapi.back4app.com/")
                 .clientKey("UTtPLkkWZuNHTLrYJ6g4oLdaVytU2PoCKrYuz4Z2")
+                        .enableLocalDataStore()
         .build()
         );
     }
