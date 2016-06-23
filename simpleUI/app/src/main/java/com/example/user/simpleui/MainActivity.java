@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;    //需要使用editor寫入至SharedPreferences
 
-    ArrayList<Order> orders = new ArrayList<>();
+    List<Order> orders = new ArrayList<>();
     String drinkName = "black tea";
     String menuResults ="";
 
@@ -188,23 +188,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupOrdersData(){
-        String content = Utils.readFile(this,"history");
-        String[] datas=content.split("\n");
-        for(int i=0;i<datas.length;i++){
-            Order order=Order.newInstanceWithData(datas[i]);
-            if(order !=null){
-                orders.add(order);
+        Order.getQuery().findInBackground(new FindCallback<Order>() {
+            @Override
+            public void done(List<Order> objects, ParseException e) {
+                orders=objects;
+                setupListView();
             }
-        }
+        });
+//        String content = Utils.readFile(this,"history");
+//        String[] datas=content.split("\n");
+//        for(int i=0;i<datas.length;i++){
+//            Order order=Order.newInstanceWithData(datas[i]);
+//            if(order !=null){
+//                orders.add(order);
+//            }
+//        }
     }
 
     public void click(View view) {
         String note = editText.getText().toString();
 
         Order order = new Order();
-        order.note = note;
-        order.menuResults = menuResults;
-        order.storeInfo= (String)storeSpinner.getSelectedItem();
+        order.setNote(note);
+        order.setMenuResults(menuResults);
+        order.setStoreInfo((String) storeSpinner.getSelectedItem());
+        //上傳order物件
+        order.saveEventually();
 
         orders.add(order);
 
