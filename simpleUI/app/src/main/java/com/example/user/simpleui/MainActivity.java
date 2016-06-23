@@ -23,6 +23,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +54,45 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Parse TEST
+        //new 一個class 名稱叫TestObject
+        ParseObject testObject = new ParseObject("TestObject");
+        //             key    value
+        testObject.put("foo", "bar");
+        //背景上傳
+        testObject.saveInBackground();
+
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("TestObject");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null){
+                    for(ParseObject object : objects){
+                        Toast.makeText(MainActivity.this,object.getString("foo"),Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        });
+
+//        //背景執行 需有Callback回傳狀況
+//        query.findInBackground(new FindCallback() {
+//            @Override
+//            public void done(List objects, ParseException e) {
+//                //處理連線問題
+//                if(e==null){
+//                    for(int i=0;i<objects.size();i++){
+//                        Log.d("debug",objects.get(i).toString());
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void done(Object o, Throwable throwable) {
+//
+//            }
+//        });
+
         setContentView(R.layout.activity_main);
         Log.d("Debug", "Hello LOG");
 
