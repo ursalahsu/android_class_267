@@ -14,12 +14,13 @@ public class SampleUIApplication extends Application {
         super.onCreate();
         //註冊類別
         ParseObject.registerSubclass(Order.class);
+        ParseObject.registerSubclass(Drink.class);
         Parse.initialize(new Parse.Configuration.Builder(this)
-                .applicationId("jzKooj3ryei2knZRFszEHucDRSYVMpsNwHDv4Du7")
-                .server("https://parseapi.back4app.com/")
-                .clientKey("UTtPLkkWZuNHTLrYJ6g4oLdaVytU2PoCKrYuz4Z2")
+                        .applicationId("jzKooj3ryei2knZRFszEHucDRSYVMpsNwHDv4Du7")
+                        .server("https://parseapi.back4app.com/")
+                        .clientKey("UTtPLkkWZuNHTLrYJ6g4oLdaVytU2PoCKrYuz4Z2")
                         .enableLocalDataStore()
-        .build()
+                        .build()
         );
     }
 }

@@ -42,7 +42,7 @@ public class Order extends ParseObject {
     //載入全部order的資料
     public static ParseQuery<Order> getQuery(){return ParseQuery.getQuery(Order.class);}
 
-    public  static void getOrdersFromRemote(final FindCallback callback){
+    public  static void getOrdersFromRemote(final FindCallback<Order> callback){
         getQuery().findInBackground(new FindCallback<Order>() {
             @Override
             public void done(List<Order> objects, ParseException e) {

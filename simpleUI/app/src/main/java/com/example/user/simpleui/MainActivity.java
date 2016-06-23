@@ -194,16 +194,31 @@ public class MainActivity extends AppCompatActivity {
         ConnectivityManager cm =(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info =cm.getActiveNetworkInfo();
 
-        FindCallback<Order> callback = new FindCallback<Order>() {
+        final FindCallback<Order> callback = new FindCallback<Order>() {
             @Override
             public void done(List<Order> objects, ParseException e) {
-                orders=objects;
-                setupListView();
+                //要判斷沒有錯誤才執行 不然程式會崩潰
+                if(e==null) {
+                    orders = objects;
+                    setupListView();
+                }
             }
         };
         //有連線成功 從雲端取資料; 無則使用LocalDatabase
         if(info!=null && info.isConnected()){
-            Order.getOrdersFromRemote(callback);
+            Order.getOrdersFromRemote(new FindCallback<Order>() {
+                @Override
+                public void done(List<Order> objects, ParseException e) {
+                    //有網路但是取資料發生問題 還是取Local端資料
+                    if(e!=null){
+                        Toast.makeText(MainActivity.this,"Sync Failed",Toast.LENGTH_LONG).show();
+                        Order.getQuery().fromLocalDatastore().findInBackground(callback);
+                    }else{
+                        callback.done(objects,e);
+                    }
+
+                }
+            });
         }else{
             Order.getQuery().fromLocalDatastore().findInBackground(callback);
         }
