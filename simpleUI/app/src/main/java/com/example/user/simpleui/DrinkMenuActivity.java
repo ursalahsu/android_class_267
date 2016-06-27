@@ -11,8 +11,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -88,10 +91,33 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
     private void setData() {
         Drink.getQuery().findInBackground(new FindCallback<Drink>() {
             @Override
-            public void done(List<Drink> objects, ParseException e) {
-                if(e==null){
-                    drinks=objects;
-                    setupListView();
+            public void done(final List<Drink> objects, ParseException e) {
+//                if(e==null){
+//                    drinks=objects;
+//                    setupListView();
+//                }
+                if( e != null){
+                    Drink.getQuery().fromLocalDatastore().findInBackground(new FindCallback<Drink>() {
+                        @Override
+                        public void done(List<Drink> list, ParseException e) {
+                            drinks = objects;
+                            setupListView();
+                        }
+                    });
+                }else{
+                    //刪除Local端資料
+                    ParseObject.unpinAllInBackground("Drink", new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            ParseObject.pinAllInBackground(objects, new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    drinks=objects;
+                                    setupListView();
+                                }
+                            });
+                        }
+                    });
                 }
             }
         });

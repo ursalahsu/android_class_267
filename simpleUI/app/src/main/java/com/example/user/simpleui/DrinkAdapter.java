@@ -8,8 +8,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.parse.GetFileCallback;
+import com.parse.ParseException;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Inflater;
@@ -44,7 +47,7 @@ public class DrinkAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Holder holder;
+        final Holder holder;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.listview_drink_item, null);
             holder = new Holder();
@@ -56,13 +59,19 @@ public class DrinkAdapter extends BaseAdapter {
         } else {
             holder = (Holder) convertView.getTag();
         }
-        Drink drink = drinks.get(position);
+        final Drink drink = drinks.get(position);
 
         holder.drinkNameTextView.setText(drink.getName());
         holder.mPriceTextView.setText(String.valueOf(drink.getMPrice()));
         holder.lPriceTextView.setText(String.valueOf(drink.getLPrice()));
         //使用網路上開源的Picasso載入圖片
-        Picasso.with(inflater.getContext()).load(drink.getImage().getUrl()).into(holder.drinkImageView);
+        drink.getImage().getFileInBackground(new GetFileCallback() {
+            @Override
+            public void done(File file, ParseException e) {
+                Picasso.with(inflater.getContext()).load(file).into(holder.drinkImageView);
+            }
+        });
+//        Picasso.with(inflater.getContext()).load(drink.getImage().getUrl()).into(holder.drinkImageView);
 //        holder.drinkImageView.setImageResource(drink.imageId);
 
         return convertView;
