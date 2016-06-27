@@ -100,7 +100,7 @@ public class DrinkMenuActivity extends AppCompatActivity implements DrinkOrderDi
                     Drink.getQuery().fromLocalDatastore().findInBackground(new FindCallback<Drink>() {
                         @Override
                         public void done(List<Drink> list, ParseException e) {
-                            drinks = objects;
+                            drinks = list;
                             setupListView();
                         }
                     });

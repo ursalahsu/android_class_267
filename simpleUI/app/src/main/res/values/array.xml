@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="storeInfo">
-        <item>台大店</item>
-        <item>師大店</item>
-        <item>成大店</item>
-        <item>輔大店</item>
-        <item>台科大店</item>
+        <item>台大店,台北市大安區羅斯福路四段一號</item>
+        <item>師大店,台北市師大路99號</item>
+        <item>成大店,台南市成功路一段一號</item>
+        <item>輔大店,新北市新莊區大學路5號</item>
+        <item>台科大店,台北市忠孝東路五段11號</item>
     </string-array>
 </resources>
