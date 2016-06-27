@@ -43,6 +43,8 @@ public class Order extends ParseObject {
     public static ParseQuery<Order> getQuery(){return ParseQuery.getQuery(Order.class);}
 
     public  static void getOrdersFromRemote(final FindCallback<Order> callback){
+        //依照什麼欄位排序
+        getQuery().orderByDescending("");
         getQuery().findInBackground(new FindCallback<Order>() {
             @Override
             public void done(List<Order> objects, ParseException e) {
