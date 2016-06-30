@@ -1,32 +1,61 @@
 package com.example.user.simpleui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
-public class OrderDetailActivity extends AppCompatActivity {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingTaskResponse, GoogleApiClient.ConnectionCallbacks,LocationListener, GoogleApiClient.OnConnectionFailedListener {
 
     TextView noteTextView;
     TextView menuResultsTextView;
     TextView storeInfoTextView;
     ImageView staticMap;
+
+    MapFragment mapFragment;
+    GoogleMap googleMap;
+
+    GoogleApiClient googleApiClient;
+    LocationRequest locationRequest;
+    LatLng stroeLocation;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -49,7 +78,8 @@ public class OrderDetailActivity extends AppCompatActivity {
         noteTextView = (TextView) findViewById(R.id.noteTextView);
         menuResultsTextView = (TextView) findViewById(R.id.menuResultTextView);
         storeInfoTextView = (TextView) findViewById(R.id.storeInfoTextView);
-        staticMap=(ImageView)findViewById(R.id.imageView);
+        staticMap = (ImageView) findViewById(R.id.imageView);
+        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.fragment);
 
         if (note != null)
             noteTextView.setText(note);
@@ -81,17 +111,100 @@ public class OrderDetailActivity extends AppCompatActivity {
 //
 //                }
 //            }).run();
-            String[] storeInfos=storeInfo.split(",");
-            if(storeInfos !=null && storeInfos.length>1){
+            String[] storeInfos = storeInfo.split(",");
+            if (storeInfos != null && storeInfos.length > 1) {
                 String address = storeInfos[1];
-                (new GeoGodingTask(staticMap)).execute(address);
+                (new GeoCodingTask(this)).execute(address);
             }
+        }
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap map) {
+                googleMap = map;
+            }
+        });
+    }
 
+    @Override
+    public void responseWithGeocodingResults(LatLng latLng) {
+        if (googleMap != null) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+            googleMap.moveCamera(cameraUpdate);
+            googleMap.animateCamera(cameraUpdate);  //放大縮小
+            googleMap.addMarker(new MarkerOptions().position(latLng));  //紅色指標
+            stroeLocation = latLng;
+            createGoogleAPIClient();
         }
     }
 
+    //劃路線
+    private void createGoogleAPIClient() {
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            googleApiClient.connect();
+        }
+    }
 
-//    private static class GeoGodingTask extends AsyncTask<String, Void, Bitmap> {
+    private void createLocationRequest() {
+        if (locationRequest == null) {
+            locationRequest = new LocationRequest();
+            locationRequest.setInterval(1000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        }
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
+            return;
+        }
+        googleMap.setMyLocationEnabled(true);
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(googleApiClient!=null)
+            googleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(googleApiClient!=null)
+            googleApiClient.disconnect();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+
+    //    private static class GeoCodingTask extends AsyncTask<String, Void, Bitmap> {
 //
 //        WeakReference<ImageView> imageViewWeakReference;
 //
@@ -116,7 +229,7 @@ public class OrderDetailActivity extends AppCompatActivity {
 //            }
 //        }
 //
-//        public GeoGodingTask(ImageView imageView){
+//        public GeoCodingTask(ImageView imageView){
 //            this.imageViewWeakReference=new WeakReference<ImageView>(imageView);
 //        }
 //    }
