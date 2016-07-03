@@ -30,6 +30,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     String menuResults ="";
 
     static int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
-
+    List<String> spinnerData = new ArrayList();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,11 +195,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupSpinner(){
-        //讀取Resouce內的String Array XML檔
-        String[] data = getResources().getStringArray(R.array.storeInfo);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("StoreInfo");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e==null){
+                    for(ParseObject object : objects){
+                        Toast.makeText(MainActivity.this,object.getString("name")+","+object.getString("address"),Toast.LENGTH_SHORT).show();
+                        spinnerData.add(object.getString("name")+","+object.getString("address"));
+                    }
+                }
+            }
+        });
+        String[] data = spinnerData.toArray(new String[spinnerData.size()]);
+        ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,data);
         storeSpinner.setAdapter(adapter);
-        storeSpinner.setSelection(sharedPreferences.getInt("Spinner", 0));
+
+//        //讀取Resouce內的String Array XML檔
+//        String[] data = getResources().getStringArray(R.array.storeInfo);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
+//        storeSpinner.setAdapter(adapter);
+//        storeSpinner.setSelection(sharedPreferences.getInt("Spinner", 0));
     }
 
     void setupListView() {
