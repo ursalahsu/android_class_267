@@ -24,7 +24,7 @@ public class GeoCodingTask extends AsyncTask<String, Void, double[]>{
         super.onPostExecute(doubles);
         if(geoCodingTaskResponseWeakReference.get()!=null){
             GeoCodingTaskResponse response = geoCodingTaskResponseWeakReference.get();
-            response.responseWithGeocodingResults(new LatLng(doubles[0],doubles[1]));
+            response.responseWithGeoCodingResults(new LatLng(doubles[0],doubles[1]));
         }
     }
 
@@ -33,7 +33,7 @@ public class GeoCodingTask extends AsyncTask<String, Void, double[]>{
     }
 
     interface GeoCodingTaskResponse{
-        void responseWithGeocodingResults(LatLng latLng);
+        void responseWithGeoCodingResults(LatLng latLng);
     }
 
 }

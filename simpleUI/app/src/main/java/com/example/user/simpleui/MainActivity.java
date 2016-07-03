@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null){
                     for(ParseObject object : objects){
-                        Toast.makeText(MainActivity.this,object.getString("foo"),Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this,object.getString("foo"),Toast.LENGTH_SHORT).show();
                     }
                 }
             }

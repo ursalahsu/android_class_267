@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -17,6 +19,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import com.directions.route.AbstractRouting;
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.Routing;
+import com.directions.route.RoutingListener;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.Api;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,6 +41,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,9 +52,10 @@ import org.w3c.dom.Text;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingTaskResponse, GoogleApiClient.ConnectionCallbacks,LocationListener, GoogleApiClient.OnConnectionFailedListener {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingTaskResponse, GoogleApiClient.ConnectionCallbacks, LocationListener, GoogleApiClient.OnConnectionFailedListener, RoutingListener {
 
     TextView noteTextView;
     TextView menuResultsTextView;
@@ -55,12 +67,18 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
 
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
-    LatLng stroeLocation;
+    LatLng storeLocation;
+    private ArrayList<Polyline> polylines;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,22 +135,31 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
                 (new GeoCodingTask(this)).execute(address);
             }
         }
+        String[] storeInfos = storeInfo.split(",");
+        if (storeInfos != null && storeInfos.length > 1) {
+            String address = storeInfos[1];
+            (new GeoCodingTask(this)).execute(address);
+        }
+
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
                 googleMap = map;
             }
         });
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
-    public void responseWithGeocodingResults(LatLng latLng) {
+    public void responseWithGeoCodingResults(LatLng latLng) {
         if (googleMap != null) {
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
-            googleMap.moveCamera(cameraUpdate);
-            googleMap.animateCamera(cameraUpdate);  //放大縮小
+//            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 17);
+//            googleMap.moveCamera(cameraUpdate);
+//            googleMap.animateCamera(cameraUpdate);  //放大縮小
             googleMap.addMarker(new MarkerOptions().position(latLng));  //紅色指標
-            stroeLocation = latLng;
+            storeLocation = latLng;
             createGoogleAPIClient();
         }
     }
@@ -168,10 +195,29 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+            }
             return;
         }
         googleMap.setMyLocationEnabled(true);
+        createLocationRequest();
+
+        Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+
+        LatLng start = new LatLng(25.0186348, 121.5398379);
+
+        if (location != null) {
+            start = new LatLng(location.getLatitude(), location.getLongitude());
+        }
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 17));
+        Routing routing = new Routing.Builder()
+                .travelMode(AbstractRouting.TravelMode.WALKING)
+                .waypoints(start, storeLocation)
+                .withListener(this)
+                .build();
+        routing.execute();
     }
 
 
@@ -179,27 +225,101 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
     public void onConnectionSuspended(int i) {
 
     }
+
     @Override
     protected void onStart() {
         super.onStart();
-        if(googleApiClient!=null)
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client2.connect();
+        if (googleApiClient != null)
             googleApiClient.connect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "OrderDetail Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://com.example.user.simpleui/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client2, viewAction);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(googleApiClient!=null)
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "OrderDetail Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app URL is correct.
+                Uri.parse("android-app://com.example.user.simpleui/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client2, viewAction);
+        if (googleApiClient != null)
             googleApiClient.disconnect();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client2.disconnect();
     }
 
     @Override
     public void onLocationChanged(Location location) {
-
+        LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onRoutingFailure(RouteException e) {
+
+    }
+
+    @Override
+    public void onRoutingStart() {
+
+    }
+
+    @Override
+    public void onRoutingSuccess(ArrayList<Route> routes, int index) {
+        if (polylines != null) {
+            for (Polyline poly : polylines) {
+                poly.remove();
+            }
+        }
+
+        polylines = new ArrayList<>();
+        //add route(s) to the map.
+        for (int i = 0; i < routes.size(); i++) {
+
+            //In case of more than 5 alternative routes
+
+            PolylineOptions polyOptions = new PolylineOptions();
+            polyOptions.color(Color.GREEN);
+            polyOptions.width(10 + i * 3);
+            polyOptions.addAll(routes.get(i).getPoints());
+            Polyline polyline = googleMap.addPolyline(polyOptions);
+            polylines.add(polyline);
+
+//            Toast.makeText(getApplicationContext(),"Route "+ (i+1) +": distance - "+ routes.get(i).getDistanceValue()+": duration - "+ routes.get(i).getDurationValue(),Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRoutingCancelled() {
 
     }
 

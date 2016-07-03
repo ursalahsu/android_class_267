@@ -16,12 +16,12 @@ public class SampleUIApplication extends Application {
         ParseObject.registerSubclass(Order.class);
         ParseObject.registerSubclass(Drink.class);
         Parse.initialize(new Parse.Configuration.Builder(this)
-//                        .applicationId("jzKooj3ryei2knZRFszEHucDRSYVMpsNwHDv4Du7")
-//                        .server("https://parseapi.back4app.com/")
-//                        .clientKey("UTtPLkkWZuNHTLrYJ6g4oLdaVytU2PoCKrYuz4Z2")
+                        .applicationId("jzKooj3ryei2knZRFszEHucDRSYVMpsNwHDv4Du7")
+                        .server("https://parseapi.back4app.com/")
+                        .clientKey("UTtPLkkWZuNHTLrYJ6g4oLdaVytU2PoCKrYuz4Z2")
 
-                        .applicationId("76ee57f8e5f8bd628cc9586e93d428d5")
-                        .server("http://parseserver-ps662-env.us-east-1.elasticbeanstalk.com/parse/")
+//                        .applicationId("76ee57f8e5f8bd628cc9586e93d428d5")
+//                        .server("http://parseserver-ps662-env.us-east-1.elasticbeanstalk.com/parse/")
 
                         .enableLocalDataStore()
                         .build()
