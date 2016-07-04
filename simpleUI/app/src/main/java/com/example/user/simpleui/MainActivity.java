@@ -37,6 +37,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
     static int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
     List<String> spinnerData = new ArrayList();
+    static final int REQUEST_CODE_LOGIN_ACTIVITY=1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -171,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int select = storeSpinner.getSelectedItemPosition();
-                editor.putInt("Spinner",select);
+                editor.putInt("Spinner", select);
                 editor.apply(); //寫入至SharedPreferences
             }
 
@@ -185,12 +187,18 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Order order = (Order)parent.getAdapter().getItem(position);
+                Order order = (Order) parent.getAdapter().getItem(position);
                 goToDetailOrder(order);
             }
         });
 
-        setupFacebook();
+//        setupFacebook();
+
+        if(ParseUser.getCurrentUser()==null){
+            Intent intent=new Intent();
+            intent.setClass(this,LoginActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_LOGIN_ACTIVITY);
+        }
 
         Log.d("Debug", "Main Activity OnCreate");
 
@@ -203,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         LoginButton loginButton = (LoginButton)findViewById(R.id.loginButton);
         //FB權限
         loginButton.setReadPermissions("email","public_profile");
-
+        //點選登入後 回傳callback
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -373,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        callbackManager.onActivityResult(requestCode,resultCode,data);
+//        callbackManager.onActivityResult(requestCode,resultCode,data);
 
         if(requestCode==REQUEST_CODE_DRINK_MENU_ACTIVITY){
             if(resultCode==RESULT_OK){
