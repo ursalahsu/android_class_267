@@ -25,10 +25,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -52,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     String drinkName = "black tea";
     String menuResults ="";
 
+    CallbackManager callbackManager;
+
     static int REQUEST_CODE_DRINK_MENU_ACTIVITY = 0;
     List<String> spinnerData = new ArrayList();
     @Override
@@ -70,9 +83,9 @@ public class MainActivity extends AppCompatActivity {
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
-                if(e==null){
-                    for(ParseObject object : objects){
-                        Toast.makeText(MainActivity.this,object.getString("foo"),Toast.LENGTH_SHORT).show();
+                if (e == null) {
+                    for (ParseObject object : objects) {
+                        Toast.makeText(MainActivity.this, object.getString("foo"), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -177,15 +190,74 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        setupFacebook();
+
         Log.d("Debug", "Main Activity OnCreate");
 
 
 
     }
 
+    void setupFacebook(){
+        callbackManager = CallbackManager.Factory.create();
+        LoginButton loginButton = (LoginButton)findViewById(R.id.loginButton);
+        //FB權限
+        loginButton.setReadPermissions("email","public_profile");
+
+        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                AccessToken accessToken = loginResult.getAccessToken();
+                Log.d("debug", accessToken.getPermissions().toString());
+
+                GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        Log.d("debug", object.toString());
+                        try {
+                            textView.setText(object.getString("name"));
+                            //有回傳email
+                            if (object.has("email")) {
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                Bundle bundle = new Bundle();
+                bundle.putString("fields", "email,id,name");
+                //設定要取回的欄位資料
+                request.setParameters(bundle);
+                //執行
+                request.executeAsync();
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+            }
+        });
+
+        AccessToken accessToken =AccessToken.getCurrentAccessToken();
+        if(accessToken!=null){
+            GraphRequest graphRequest =GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+                @Override
+                public void onCompleted(JSONObject object, GraphResponse response) {
+
+                }
+            });
+        }
+    }
+
     private void goToDetailOrder(Order order) {
         Intent intent = new Intent();
-        intent.setClass(this,OrderDetailActivity.class);
+        intent.setClass(this, OrderDetailActivity.class);
 
         intent.putExtra("note",order.getNote());
         intent.putExtra("menuResults",order.getMenuResults());
@@ -195,22 +267,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setupSpinner(){
-        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("StoreInfo");
-        query.findInBackground(new FindCallback<ParseObject>() {
+        ParseQuery<ParseObject> spinnerQuery = new ParseQuery<ParseObject>("StoreInfo");
+        spinnerQuery.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null){
                     for(ParseObject object : objects){
-                        Toast.makeText(MainActivity.this,object.getString("name")+","+object.getString("address"),Toast.LENGTH_SHORT).show();
-                        spinnerData.add(object.getString("name")+","+object.getString("address"));
+//                        Toast.makeText(MainActivity.this,object.getString("name")+","+object.getString("address"),Toast.LENGTH_SHORT).show();
+                        spinnerData.add(object.getString("name") + "," + object.getString("address"));
                     }
+                    String[] data = spinnerData.toArray(new String[spinnerData.size()]);
+
+                    ArrayAdapter adapter = new ArrayAdapter(MainActivity.this,android.R.layout.simple_spinner_item,data);
+                    storeSpinner.setAdapter(adapter);
                 }
             }
         });
-        String[] data = spinnerData.toArray(new String[spinnerData.size()]);
-        ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,data);
-        storeSpinner.setAdapter(adapter);
-
 //        //讀取Resouce內的String Array XML檔
 //        String[] data = getResources().getStringArray(R.array.storeInfo);
 //        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,data);
@@ -301,6 +373,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode,resultCode,data);
+
         if(requestCode==REQUEST_CODE_DRINK_MENU_ACTIVITY){
             if(resultCode==RESULT_OK){
                 menuResults = data.getStringExtra("results");
